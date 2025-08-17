@@ -21,26 +21,32 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copy project files
+# Copy full project into container
 COPY . .
 
 # Copy .env if missing
 RUN cp .env.example .env || true
 
-# Set permissions
+# Set proper permissions
 RUN chown -R www-data:www-data /var/www/laravel-app \
-    && chmod -R 775 /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache
+    && chmod -R 755 /var/www/laravel-app \
+    && chmod -R 775 /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache /var/www/laravel-app/public
 
 # Point Apache to Laravel's public folder
 RUN sed -i 's|/var/www/html|/var/www/laravel-app/public|g' /etc/apache2/sites-available/000-default.conf
-RUN sed -i 's|<Directory /var/www/>|<Directory /var/www/laravel-app/public>|g' /etc/apache2/apache2.conf
+
+# Add correct Directory configuration
+RUN echo '<Directory /var/www/laravel-app/public>' >> /etc/apache2/apache2.conf \
+    && echo '    Options Indexes FollowSymLinks' >> /etc/apache2/apache2.conf \
+    && echo '    AllowOverride All' >> /etc/apache2/apache2.conf \
+    && echo '    Require all granted' >> /etc/apache2/apache2.conf \
+    && echo '</Directory>' >> /etc/apache2/apache2.conf
 
 # Suppress ServerName warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Use Render’s port environment variable
-ENV PORT 10000
-EXPOSE $PORT
+# Expose Apache port
+EXPOSE 80
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
