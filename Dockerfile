@@ -15,11 +15,13 @@ WORKDIR /var/www/laravel-app
 # Copy composer from official image
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Copy composer files and install dependencies
+# Copy composer files
 COPY composer.json composer.lock ./
+
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copy full project
+# Copy project files
 COPY . .
 
 # Copy .env if missing
@@ -43,5 +45,5 @@ EXPOSE 80
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Start container via entrypoint
+# Start container
 CMD ["docker-entrypoint.sh"]
