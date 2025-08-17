@@ -1,11 +1,13 @@
 # Use PHP 8.2 with Apache
 FROM php:8.2-apache
 
-# Install system dependencies
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git curl libonig-dev libxml2-dev \
+    libzip-dev unzip git curl libonig-dev libxml2-dev build-essential zlib1g-dev \
+    && docker-php-ext-configure zip \
     && docker-php-ext-install pdo pdo_mysql zip mbstring tokenizer xml ctype \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory (project root)
 WORKDIR /var/www/laravel-app
@@ -19,7 +21,7 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copy full project
+# Copy full project into container
 COPY . .
 
 # Copy .env if missing
