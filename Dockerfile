@@ -9,19 +9,17 @@ RUN apt-get update && apt-get install -y \
     && a2enmod rewrite \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set working directory (project root)
+# Set working directory
 WORKDIR /var/www/laravel-app
 
 # Copy composer from official image
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Copy composer files
+# Copy composer files and install dependencies
 COPY composer.json composer.lock ./
-
-# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copy full project into container
+# Copy full project
 COPY . .
 
 # Copy .env if missing
