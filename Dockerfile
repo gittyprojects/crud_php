@@ -3,7 +3,7 @@ FROM php:8.2-apache
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git curl libonig-dev libxml2-dev build-essential zlib1g-dev \
+    libzip-dev unzip git curl libonig-dev libxml2-dev build-essential zlib1g-dev libpq-dev \
     && docker-php-ext-configure zip \
     && docker-php-ext-install pdo pdo_pgsql zip mbstring xml ctype \
     && a2enmod rewrite \
