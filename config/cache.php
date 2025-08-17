@@ -9,25 +9,20 @@ return [
     | Default Cache Store
     |--------------------------------------------------------------------------
     |
-    | This option controls the default cache store that will be used by the
-    | framework. This connection is utilized if another isn't explicitly
-    | specified when running a cache operation inside the application.
+    | This controls the default cache driver. Using 'file' is safe if your
+    | database tables for cache are not yet created.
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_STORE', 'file'),
 
     /*
     |--------------------------------------------------------------------------
     | Cache Stores
     |--------------------------------------------------------------------------
     |
-    | Here you may define all of the cache "stores" for your application as
-    | well as their drivers. You may even define multiple stores for the
-    | same cache driver to group types of items stored in your caches.
-    |
-    | Supported drivers: "array", "database", "file", "memcached",
-    |                    "redis", "dynamodb", "octane", "null"
+    | Define all the cache stores for your application. You can use file,
+    | database, Redis, memcached, etc.
     |
     */
 
@@ -38,18 +33,24 @@ return [
             'serialize' => false,
         ],
 
-        'database' => [
-            'driver' => 'database',
-            'connection' => env('DB_CACHE_CONNECTION', 'pgsql'), // default to PostgreSQL
-            'table' => env('DB_CACHE_TABLE', 'cache'),
-            'lock_connection' => env('DB_CACHE_LOCK_CONNECTION', 'pgsql'),
-            'lock_table' => env('DB_CACHE_LOCK_TABLE', 'cache_locks'),
-        ],
-
         'file' => [
             'driver' => 'file',
             'path' => storage_path('framework/cache/data'),
             'lock_path' => storage_path('framework/cache/data'),
+        ],
+
+        'database' => [
+            'driver' => 'database',
+            'table' => env('DB_CACHE_TABLE', 'cache'),
+            'connection' => env('DB_CACHE_CONNECTION', null),
+            'lock_connection' => env('DB_CACHE_LOCK_CONNECTION', null),
+            'lock_table' => env('DB_CACHE_LOCK_TABLE', 'cache_locks'),
+        ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
+            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
         'memcached' => [
@@ -69,12 +70,6 @@ return [
                     'weight' => 100,
                 ],
             ],
-        ],
-
-        'redis' => [
-            'driver' => 'redis',
-            'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
-            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
         'dynamodb' => [
@@ -97,12 +92,11 @@ return [
     | Cache Key Prefix
     |--------------------------------------------------------------------------
     |
-    | When utilizing the APC, database, memcached, Redis, and DynamoDB cache
-    | stores, there might be other applications using the same cache. For
-    | that reason, you may prefix every cache key to avoid collisions.
+    | Prefix cache keys to avoid collisions if multiple applications share
+    | the same cache store (Redis, Memcached, etc.).
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-cache-'),
+    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel')).'-cache-'),
 
 ];
