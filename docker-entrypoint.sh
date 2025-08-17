@@ -2,7 +2,7 @@
 set -e
 
 # Generate Laravel APP_KEY if missing
-if ! php artisan key:generate --check; then
+if ! grep -q '^APP_KEY=' .env || [ -z "$(grep '^APP_KEY=' .env | cut -d '=' -f2)" ]; then
     php artisan key:generate --ansi
 fi
 
