@@ -38,12 +38,13 @@ RUN sed -i 's|<Directory /var/www/>|<Directory /var/www/laravel-app/public>|g' /
 # Suppress ServerName warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Expose Apache port
-EXPOSE 80
+# Use Render’s port environment variable
+ENV PORT 10000
+EXPOSE $PORT
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Start container
+# Start container via entrypoint
 CMD ["docker-entrypoint.sh"]
